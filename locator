@@ -1,0 +1,22 @@
+#!/bin/bash
+#Apache IP Locator - by Rob Krul
+#parses the apache log and uses geoiplocate to see where everyone is from
+#requires the geoip package (Debian) or equivalent for your distro
+#Do as you wish with it.
+
+#set this to the location of your GeoLiteity database file
+GEO_IP_DAT="/home/rk/geoip/GeoLiteCity.dat"
+
+#set this to the location of your Apache log giles
+APACHE_LOG="/var/log/apache2/access.log*"
+
+#pulls all IPs from your apache logs and into a temp tile called locator_tmp
+cat $APACHE_LOG | cut -f1 -d "-" | awk '!x[$0]++' > locator_tmp;
+
+#reads the temp file line by line, grabs the geolocation, and formats the output. 
+
+while read line 
+do
+   echo $line `geoiplookup -f $GEO_IP_DAT  $line | awk -F" " '{$1=""; $2=""; $3=""; $4=""; $5=""; print}' | tr -d ','`   
+done < locator_tmp
+rm -rf locator_tmp
