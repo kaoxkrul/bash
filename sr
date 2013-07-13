@@ -1,0 +1,32 @@
+#!/bin/bash
+######################################################################
+# Program: sr
+# Programmer: Rob Krul
+# Syntax: sr oldtext newtext file(s)
+# Search and replace text in files
+#
+# Example 1:
+# $ cd /var/www/html
+# $ sr ".kicks-ass.net" ".is-a-geek.net" *.html
+#
+# Example 2:
+# $ cd /var/www/html
+# $ find -name '*.html' | xargs sr ".kicks-ass.net" ".is-a-geek.net"
+#
+# Make sure you have good backups in case you change more
+# than you intended. For example if you want to change "tick"
+# to "tack" it would also change "ticket" to "tacket" so you
+# need to think a little before running.
+######################################################################
+
+ARGC=$#
+OLD="$1"
+NEW="$2"
+FILE="$3"
+shift
+shift
+
+[ $ARGC -ge 3 -a -f "$FILE" ] && 
+   perl -i -p -e "s/$OLD/$NEW/g;" $* ||
+   echo "Syntax: sr oldtext newtext file(s)
+Search and replace text in files"

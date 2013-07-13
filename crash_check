@@ -1,0 +1,32 @@
+#!/bin/bash
+# Checks to see if the MC server is running and texts me if it isn't
+# Useful to check after using a dodgy plugin like World Edit
+# Plug this into a cron job that runs every minute
+# TO DO -  Add a auto-restart - redirect ouput so it doen't fill up log
+
+
+server_running() {
+  if ps ax | grep -v grep | grep -iv SCREEN | grep mcserver > /dev/null
+  then
+PID=0
+    PID="$(ps ax | grep -v grep | grep -iv SCREEN | grep mcserver | awk '{print $1}')"
+    return 0
+  else
+return 1
+  fi
+}
+
+if server_running {
+   then
+   exit 1
+   else
+      /etc/init.d/minecraft start;
+      touch /home/mcuser/SMSer/sms;
+      echo "This message is to inform you that the Minecraft server went down at or around" >> /home/mcuser/SMSer/sms;
+      date >> /home/mcuser/SMSer/sms;
+      echo "The server was restarted" >> /home/mcuser/SMSer/sms;
+      mail -s "Server Down Notification" robertkrul27@gmail.com < /home/mcuser/SMSer/sms;
+      rm -rf /home/mcuser/SMSer/sms;
+   exit 1
+fi
+}

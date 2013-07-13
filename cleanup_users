@@ -1,0 +1,24 @@
+#!/bin/bash
+
+####################################################################
+# Here's a little shell script I wrote and run nightly from cron
+# It deletes users that have signed up at least 1 day ago and
+# have not yet posted a public or private message. These sorts
+# of users are usually only signed up to advertise or for other
+# less than honorable purposes (sorry to the honorable ones I have
+# deleted): 
+####################################################################
+
+export DATABASENAME="forums"           # Database Name
+export USERTABLE="phpbb_users"         # User Table Name
+export DATABASEHOST="localhost"        # Database password
+export DATABASEUSERNAME="mydbusername" # Database password
+export DATABASEPASSWORD="mydbpassword" # Database password
+export GRACEPERIOD=86400               # Grace time in seconds from registration
+
+echo "Deleting the following users on `date`:"
+/usr/bin/mysql $DATABASENAME -t --host=$DATABASEHOST --user=$DATABASEUSERNAME --password=$DATABASEPASSWORD <<END
+select from_unixtime(user_regdate),username,user_email,user_website from $USERTABLE where user_posts = 0 and user_last_privmsg = 0 and user_active = 0 and user_regdate < unix_timestamp() - $GRACEPERIOD order by user_regdate;
+delete from $USERTABLE where user_posts = 0 and user_last_privmsg = 0 and user_active = 0 and user_regdate < unix_timestamp() - $GRACEPERIOD;
+\q
+END

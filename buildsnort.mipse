@@ -1,0 +1,84 @@
+#!/bin/bash
+
+BUILDPCAP=1
+BUILDMYSQL=1
+BUILDSNORT=1
+
+# extracted libpcap dir
+export PCAP=/usr/src/wrt54g/libpcap-0.7.2
+# extracted snort dir
+export SNORT=/usr/src/wrt54g/snort-2.0.5
+# extracted mysql dir
+export MYSQL=/usr/src/wrt54g/mysql-4.0.16
+# extracted cross tools dir
+export CROSS=/opt/crosstool/mipsel-unknown-linux-gnu/gcc-3.2.3-glibc-2.2.3/bin
+# kernel version running on router
+export ac_cv_linux_vers=2.4.20
+
+export PATH=$CROSS:$PATH
+
+export CC="$CROSS/mipsel-unknown-linux-gnu-gcc --static"
+export LD="$CROSS/mipsel-unknown-linux-gnu-ld -static"
+
+alias gcc="$CROSS/mipsel-unknown-linux-gnu-gcc --static"
+alias ar=$CROSS/mipsel-unknown-linux-gnu-ar
+alias as=$CROSS/mipsel-unknown-linux-gnu-as
+alias c++=$CROSS/mipsel-unknown-linux-gnu-c++
+alias mips=c++=$CROSS/mipsel-unknown-linux-gnu-c++
+alias c++filt=$CROSS/mipsel-unknown-linux-gnu-c++filt
+alias cpp=$CROSS/mipsel-unknown-linux-gnu-cpp
+alias gccbug=$CROSS/mipsel-unknown-linux-gnu-gccbug
+alias gcov=$CROSS/mipsel-unknown-linux-gnu-gcov
+alias ld="$CROSS/mipsel-unknown-linux-gnu-ld -static"
+alias nm=$CROSS/mipsel-unknown-linux-gnu-nm
+alias objcopy=$CROSS/mipsel-unknown-linux-gnu-objcopy
+alias ranlib=$CROSS/mipsel-unknown-linux-gnu-ranlib
+alias readelf=$CROSS/mipsel-unknown-linux-gnu-readelf
+alias size=$CROSS/mipsel-unknown-linux-gnu-size
+alias strings=$CROSS/mipsel-unknown-linux-gnu-strings
+alias strip=$CROSS/mipsel-unknown-linux-gnu-strip
+
+if [ $BUILDPCAP -eq 1 ]; then
+  cd $PCAP
+  if [ -f Makefile ]; then
+    make distclean
+  fi
+  if [ -x ./configure ]; then
+    ./configure --host=mips --with-pcap=linux
+    make
+  else
+    echo "No PCAP!"
+    exit
+  fi
+fi
+
+if [ $BUILDMYSQL -eq 1 ]; then
+  cd $MYSQL
+  if [ -f Makefile ]; then
+    make distclean
+  fi
+  if [ -x ./configure ]; then
+    ./configure --host=mips
+    make
+  else
+    echo "No MySQL!"
+    exit
+  fi
+fi
+
+if [ $BUILDSNORT -eq 1 ]; then
+  cd $SNORT
+  if [ -f Makefile ]; then
+    make distclean
+  fi
+  if [ -x ./configure ]; then
+    ./configure --host=mips \
+	--with-libpcap-libraries=$PCAP \
+	--with-libpcap-includes=$PCAP \
+	--with-mysql=$MYSQL
+    make
+  else
+    echo "No SNORT!"
+    exit
+  fi
+fi

@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Original sample script to update the zapper script from the master copy on
+# my web page.	- Cameron Simpson <cs@zip.com.au> 21jun99
+#
+# Slightly updated by Rob Krul to make sure zapper script is executable
+# and to use Red Hat default file locations
+#
+
+masterurl=http://adzapper.sourceforge.net/scripts/squid_redirect
+zapper=/etc/squid/squid_redirect	## hack to suit your site
+pidfile=/var/run/squid.pid		## hack to suit, again
+
+tmp=/tmp/newzapper$$
+if wget -q -O $tmp "$masterurl"
+then
+    cmp -s "$tmp" "$zapper" \
+    || ( cat "$tmp" >"$zapper" || exit 1
+	 [ ! -x "$zapper" ] && chmod +x $zapper
+	 [ -s "$pidfile" ] && kill -1 `cat "$pidfile"`
+       )
+fi
+rm -f "$tmp"
+
+exit 0

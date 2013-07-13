@@ -1,0 +1,18 @@
+#!/bin/sh
+#######################################################
+# Program: findparasite
+# Programmer: Rob Krul
+# Syntax: findparasite [directory]
+#
+# Example1:
+# $ findparasite /
+# The above example will list the filenames that
+# contain the parasite in the specified
+# directory and all subdirectories.
+#######################################################
+
+if [ $# -lt 1 ]; then
+  echo "Syntax: `basename $0` [directory]"
+  exit
+fi
+/bin/grep "`printf \"\x53\xb8\x02\x00\x00\x00\xbb\x00\x00\x00\x00\xcd\x80\x85\xc0\x75"`" -l -s -r "$1"

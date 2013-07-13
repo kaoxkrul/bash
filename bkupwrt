@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# Backup Script for OpenWrt routers
+# by Rob Krul
+
+# Routers that will be backed up with "all" param
+ROUTERS="wrt1 wrt2 wrt3 wrt4"
+
+# Set Backup Directory
+BACKUPDIR="/home/username/wrt-backup"
+
+if [ $# -ne 1 ]; then
+   echo "Syntax: bkupwrt <routername|all>"
+   exit
+fi
+
+if [ ! -d ${BACKUPDIR} ]; then
+   echo "ERROR: ${BACKUPDIR} does not exist!"
+   exit
+fi
+
+if [ ! -w ${BACKUPDIR} ]; then
+   echo "ERROR: ${BACKUPDIR} not writable!"
+   exit
+fi
+
+cd ${BACKUPDIR}
+
+if [ "$1" != "all" ]; then
+   ROUTERS=$1
+fi
+
+for router in $ROUTERS
+do
+
+  echo "*** Backing up ${router} ***"
+
+  if [ -f ${router}-bkup.tgz ]; then
+    mv -f ${router}-bkup.tgz ${router}-bkup-`date +'%Y%m%d%H%M%S'`.tgz
+  fi
+  if [ -f ${router}-cpuinfo.txt ]; then
+    mv -f ${router}-cpuinfo.txt ${router}-cpuinfo-`date +'%Y%m%d%H%M%S'`.txt
+  fi
+  if [ -f ${router}-df.txt ]; then
+    mv -f ${router}-df.txt ${router}-df-`date +'%Y%m%d%H%M%S'`.txt
+  fi
+  if [ -f ${router}-ifconfig.txt ]; then
+    mv -f ${router}-ifconfig.txt ${router}-ifconfig-`date +'%Y%m%d%H%M%S'`.txt
+  fi
+  if [ -f ${router}-linux.trx ]; then
+    mv -f ${router}-linux.trx ${router}-linux-`date +'%Y%m%d%H%M%S'`.trx
+  fi
+  if [ -f ${router}-meminfo.txt ]; then
+    mv -f ${router}-meminfo.txt ${router}-meminfo-`date +'%Y%m%d%H%M%S'`.txt
+  fi
+  if [ -f ${router}-nvram.bin ]; then
+    mv -f ${router}-nvram.bin ${router}-nvram-`date +'%Y%m%d%H%M%S'`.bin
+  fi
+  if [ -f ${router}-ps.txt ]; then
+    mv -f ${router}-ps.txt ${router}-ps-`date +'%Y%m%d%H%M%S'`.txt
+  fi
+  if [ -f ${router}-tar.tgz ]; then
+    mv -f ${router}-tar.tgz ${router}-tar-`date +'%Y%m%d%H%M%S'`.tgz
+  fi
+
+  ssh -x root@${router} "cat /proc/cpuinfo" > ${router}-cpuinfo.txt
+  ssh -x root@${router} "df" > ${router}-df.txt
+  ssh -x root@${router} "/sbin/ifconfig" > ${router}-ifconfig.txt
+  ssh -x root@${router} "mount -o remount,ro /dev/mtdblock/4 /jffs;dd if=/dev/mtdblock/1;mount -o remount,rw /dev/mtdblock/4 /jffs" > ${router}-linux.trx
+  ssh -x root@${router} "cat /proc/meminfo" > ${router}-meminfo.txt
+  ssh -x root@${router} "cat /proc/mtd" > ${router}-mtd.txt
+  ssh -x root@${router} "dd if=/dev/mtdblock/3" > ${router}-nvram.bin
+  ssh -x root@${router} "if [ -x /bin/opkg ]; then opkg list_installed; else ipkg list_installed; fi" > ${router}-pkgs.txt
+  ssh -x root@${router} "ps w" > ${router}-ps.txt
+  ssh -x root@${router} "cd /tmp;mkdir mnt;mount /dev/mtdblock/4 mnt;cd mnt;tar -czf - *;cd ..;umount mnt;rmdir mnt" > ${router}-tar.tgz
+
+  tar -cvzf ${router}-bkup.tgz \
+     $router-cpuinfo.txt \
+     $router-df.txt \
+     $router-ifconfig.txt \
+     $router-linux.trx \
+     $router-meminfo.txt \
+     $router-mtd.txt \
+     $router-nvram.bin \
+     $router-pkgs.txt \
+     $router-ps.txt \
+     $router-tar.tgz
+
+  rm -f \
+     $router-cpuinfo.txt \
+     $router-df.txt \
+     $router-ifconfig.txt \
+     $router-linux.trx \
+     $router-meminfo.txt \
+     $router-mtd.txt \
+     $router-nvram.bin \
+     $router-pkgs.txt \
+     $router-ps.txt \
+     $router-tar.tgz
+
+  if [ -f ${router}-bkup.tgz ]; then
+    mv -f ${router}-bkup.tgz ${router}-bkup-`date +'%Y%m%d%H%M%S'`.tgz
+  fi
+
+done

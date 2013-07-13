@@ -8,7 +8,11 @@
 GEO_IP_DAT="/home/rk/geoip/GeoLiteCity.dat"
 
 #set this to the location of your Apache log giles
+<<<<<<< HEAD
+APACHE_LOG=$1
+=======
 APACHE_LOG="/var/log/apache2/access.log*"
+>>>>>>> a2e067642a0144d6cf22b658e94d5f1c6a5f0743
 
 #pulls all IPs from your apache logs and into a temp tile called locator_tmp
 cat $APACHE_LOG | cut -f1 -d "-" | awk '!x[$0]++' > locator_tmp;
@@ -20,3 +24,7 @@ do
    echo $line `geoiplookup -f $GEO_IP_DAT  $line | awk -F" " '{$1=""; $2=""; $3=""; $4=""; $5=""; print}' | tr -d ','`   
 done < locator_tmp
 rm -rf locator_tmp
+<<<<<<< HEAD
+
+=======
+>>>>>>> a2e067642a0144d6cf22b658e94d5f1c6a5f0743

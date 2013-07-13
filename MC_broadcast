@@ -1,0 +1,2 @@
+su - mcuser -c "screen -p 0 -S bukkit -X eval 'stuff \"say To apply for staff please go to www.millertimemc.com and register at the forum. DO NOT ASK IN CHAT!!!!\"\015'"
+

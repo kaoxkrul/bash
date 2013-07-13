@@ -1,0 +1,7 @@
+#!/bin/bash
+if [ $# -ne 1 ]; then
+  echo "Syntax: `basename $0` <topic number>"
+  exit
+fi
+SQL="select topic_title,topic_type from phpbb_topics where topic_id = $1"
+echo "$SQL" | mysql forums

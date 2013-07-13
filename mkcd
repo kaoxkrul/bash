@@ -1,0 +1,40 @@
+#!/bin/sh
+##############################################
+# Program:     mkcd
+# Programmer:  Rob Krul
+# Syntax:      mkcd <isoimage>
+#
+# Burn ISO images in background
+#
+##############################################
+
+# Configuration - Adjust as needed
+CDDEV="/dev/cdrom"
+SCSIDEV="0,0,0"
+SPEED="2"
+LOG="/tmp/mkcd.log"
+CDRECORD="/usr/bin/cdrecord"
+EJECT="/usr/bin/eject"
+# End Configuration
+
+export CDDEV SCSIDEV SPEED LOG CDRECORD EJECT
+
+if [ $# -ne 1 ]; then
+  echo "Syntax: `basename $0` <isoimage>"
+  exit
+fi
+
+if [ ! -f "$1" ]; then
+  echo "$1 does not exist, try again"
+  exit
+fi
+
+# The following two lines will ensure that the next user
+# to run this script will not get a permission denied error
+# when trying to write to a leftover log file
+touch $LOG
+chmod a+rw $LOG
+
+($CDRECORD -v dev=$SCSIDEV speed=$SPEED $1;sleep 5;$EJECT $CDDEV) > $LOG 2>&1 &
+echo "Writing $1 to CD in background"
+echo "Type \"tail -f $LOG\" to monitor progress..."

@@ -1,0 +1,3 @@
+#!/bin/bash
+genbasedir --flat --bloat --bz2only /var/www/voidmain/apt/redhat/8.0/en/i386 voidmain
+genbasedir --flat --bloat --bz2only /var/www/voidmain/apt/redhat/9/en/i386 voidmain

@@ -1,0 +1,4 @@
+#!/bin/bash
+/usr/bin/apt-get -qy update > /dev/null
+/usr/bin/apt-get upgrade -qy > /dev/null
+exit 0

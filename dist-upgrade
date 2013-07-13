@@ -1,0 +1,28 @@
+#!/bin/sh
+#######################################################
+# Program: dist-upgrade
+# Programmer: Rob Krul
+# Requires: apt for Red Hat
+#
+# Suitable for a nightly cron job:
+# 0 3 * * * /root/bin/dist-upgrade > /dev/null 2>&1
+# --or-- just drop this script in /etc/cron.daily
+# and don't forget to set it executable (chmod +x).
+#
+# - Keeps your system up to date (without up2date)
+# - Upgrades system and sends an email report
+#
+# Caution! Use with extreme care, especially on vital
+# servers. Consider consequences of what could happen
+# if critical packages are updated that may cause
+# problems. Use at your own risk.
+#######################################################
+
+# Email Address to send report to
+EMAIL="root"
+
+# update, dist-upgrade, clear cache, email results
+( /usr/bin/apt-get -q -y update 2>&1 &&
+  /usr/bin/apt-get -q -y dist-upgrade 2>&1 &&
+  /usr/bin/apt-get -q -y clean 2>&1 ) |
+  /bin/mail -s "`hostname` dist-upgrade" $EMAIL

@@ -1,0 +1,69 @@
+#!/bin/bash
+#############################################################
+# m4a2mp3 v0.12
+# by Calum and Rob Krul
+#
+# e.g. m4a2mp3 myfile.m4a
+# e.g. m4a2mp3 myfile.m4a myfile2.m4a myfile3.m4a
+# e.g. m4a2mp3 "my file.m4a" "my file 2.m4a" "my file 3.m4a"
+# e.g. m4a2mp3 "*.m4a"
+# e.g. m4a2mp3 /directory/containing/m4a/files
+# e.g. m4a2mp3 .
+#
+# http://voidmain.is-a-geek.net/forums/viewtopic.php?t=407
+#
+# History:
+# 16 May 2003 - v0.1 m4a2mp3 script created
+# 27 August 2005 - v0.11 -aofile had been deprecated, corrected
+# 28 August 2005 - v0.12 Added "IFS=" -Void
+# 22 September 2006 - v0.12 Converted wma2mp3 to m4a2mp3
+#############################################################
+
+# Turn off input field separation so filenames with spaces work
+IFS=
+
+#############################################################
+# Move the conversion process into a function that can
+# be called.
+# The "&&" makes it so each step must be successful before
+# the next step will be done.
+#############################################################
+
+function m4a2mp3 () {
+  if [ ! -f "$1" ]; then
+     echo "File $1 not found!"
+  else
+     mplayer -ao pcm:file="${1%%.[Mm][4][Aa]}.wav" "$1" &&
+     lame -h -b 192 "${1%%.[Mm][4][Aa]}.wav" "${1%%.[Mm][4][Aa]}.mp3" &&
+     rm -f "${1%%.[Mm][4][Aa]}.wav" ||
+     echo "There was a problem with the conversion process!"
+  fi
+}
+
+#############################################################
+# Not enough information to compute
+#############################################################
+if [ $# -lt 1 ]; then
+   echo "Syntax: `basename $0` <m4aFilename(s)|m4aDirectory>"
+   exit
+fi
+
+#############################################################
+# Directory was passed so convert all m4a files in directory
+#############################################################
+if [ $# -eq 1 -a -d "$1" ]; then
+  for file in $1/*.[Mm][4][Aa]
+  do
+    m4a2mp3 "$file"
+  done
+  exit
+fi
+
+#############################################################
+# One or more m4a files were passed, convert them
+#############################################################
+for file in $*
+do
+  m4a2mp3 "$file"
+done
+exit

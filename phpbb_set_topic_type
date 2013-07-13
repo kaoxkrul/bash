@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Your phpBB database name
+phpBB="forums"
+
+if [ $# -ne 2 ]; then
+  echo
+  echo "  Syntax: `basename $0` <TopicNum> <Type>"
+  echo " Example: `basename $0` 700 1"
+  echo
+  echo "TopicNum: View a topic in your browser and get the"
+  echo "          \"t=xxx\" number from the URL in your location"
+  echo "          box. xxx is the number you need here."
+  echo
+  echo "    Type: 0 = Normal"
+  echo "          1 = Sticky"
+  echo "          2 = Announce"
+  echo "          3 = Global Announce"
+  echo
+  exit
+fi
+
+SQL="update phpbb_topics set topic_type = $2 where topic_id = $1"
+
+echo "$SQL" | mysql $phpBB

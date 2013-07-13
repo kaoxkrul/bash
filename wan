@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SITE="ifconfig.me"
+ADDRESS=$(curl $SITE 2>/dev/null)
+
+echo $ADDRESS

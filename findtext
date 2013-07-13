@@ -1,0 +1,32 @@
+#!/bin/sh
+#######################################################
+# Program: findtext
+# Programmer: Rob Krul
+# Syntax: findtext keyword [directory]
+#
+# Example1:
+# $ findtext "kicks-ass.net" /var/www/html
+# The above example will list the filenames that
+# contain the keyword (search text) in the specified
+# directory and all subdirectories.
+#
+# Example2:
+# $ findtext "kicks-ass.net"
+# The above example will list the filenames that
+# contain the keyword (search text) in the current
+# directory and all subdirectories (equivelant to
+# '$ findtext "kicks-ass.net" .').
+#######################################################
+
+if [ $# -lt 1 ]; then
+  echo "Syntax: `basename $0` keyword [directory]"
+  exit
+fi
+SRCH="$1"
+if [ $# -eq 1 ]; then
+  DIR="."
+else
+  shift
+  DIR="$*"
+fi
+/bin/grep $SRCH -I -l -s -r $DIR

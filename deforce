@@ -1,0 +1,15 @@
+#!/bin/bash
+for i in `find -name 'index.html' -o -name 'default.html'`
+do
+
+  echo "checking ${i}"
+  if grep -q '<IFRAME SRC="http://www.forced-action.com/" WIDTH=1 HEIGHT=1></IFRAME>' ${i}; then
+    echo "deforcing ${i}"
+    grep -v '<IFRAME SRC="http://www.forced-action.com/" WIDTH=1 HEIGHT=1></IFRAME>' ${i} > ${i}.tmp
+    cat ${i}.tmp > ${i}
+    rm -f ${i}.tmp
+  else
+    echo "${i} was clean"
+  fi
+
+done
